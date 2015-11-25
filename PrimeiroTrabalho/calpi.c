@@ -1,10 +1,3 @@
-/*
- * Paraleliza��o
- * Calpi
- * calpi.c
- * Ultima revis�o GPS 18/08/04
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -35,12 +28,12 @@ int main(int argc, char *argv[])
     if (myId == 0) {
         printf ("Entre o número de intervalos para a aproximação:(0 para terminar)\n");
         scanf("%d", &N);
+        GET_TIME(begin);
     }
 
     MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     while (N > 0) {
-        GET_TIME(begin);
         w = 1.0 / (double) N;
         sum = 0.0;
         for (i = myId + 1; i <= N; i += numProcessors)

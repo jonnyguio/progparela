@@ -1,1 +1,29 @@
-Na primeira questão, para calcular o valor aproximado de PI 
+Na primeira questão, para calcular o valor aproximado de PI utilizamos o método de aproximação de integral.
+
+Tempos:
+    10.000 e 100.000 o tempo ainda era pequeno, exemplos mais interessantes são (em segundos):
+    - 1.000.000:
+        * 1 Processador:    0.0170881748
+        * 2 Processadores:  0.0086820126
+        * 4 Processadores:  0.0044550896
+        * 8 Processadores:  0.0029439926
+        * 16 Processadores: 0.0081520081
+
+    - 1.000.000.000:
+        * 1 Processador:    17.2618629932
+        * 2 Processadores:  8.6399438381
+        * 4 Processadores:  4.4037258625
+        * 8 Processadores:  2.1705329418
+        * 16 Processadores: 1.0878791809
+
+O tempo em que a tarefa é otimizado é sublinear, num comportamento esperado:
+Na medida em que dobra o número de processadores, o tempo é dividido ao meio (para 1, 2, 4, 8 e 16 processadores) para valores maiores (10^9), enquanto para valores menores (10^6) a eficiência já cai ao chegar em 16 processadores.
+
+Assim, os speedups para 10^6 ficam:
+    1.968227367, 3.83565232897, 5.80442179101, 2.09619207812 (2, 4, 8 e 16 processadores respectivamente)
+
+Para 10^9:
+    1.99791379628, 3.91983141825, 7.9528223971, 15.8674449298 (2, 4, 8 e 16 processadores respectivamente)
+
+A rotina "reduce" facilita nas contas, onde pega os resultados independentes e junta no resultado realmente esperado.
+A paralelização desse problema não é complicada, utilizando o método intercalado de separação de dados facilmente paraleliza-se esse processo.
