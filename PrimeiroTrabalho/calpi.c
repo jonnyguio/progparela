@@ -10,15 +10,30 @@
    now = t.tv_sec + t.tv_usec/1000000.0; \
 }
 
-#define f(x) ((double)(4.0 / (1.0 + x * x)))
 #define PI ((double)(4.0 * atan(1.0)))
 
-int solicita (void);
-void coleta (double sum);
+double f(double x) {
+    return (double) (4.0 / (1.0 + x * x));
+}
+
+int getN (void)
+{
+    int N;
+    printf ("Entre o número de intervalos para a aproximação:(0 para terminar)\n");
+    scanf("%d",&N);
+    return (N);
+}
+
+void print(double sumIntegral)
+{
+    double err;
+    err = sumIntegral - PI;
+    printf("soma, erro = %7.5f, %10e\n", sumIntegral, err);
+}
 
 int main(int argc, char *argv[])
 {
-    double sum, pi, w, begin, end;
+    double sumIntegral, pi, var, begin, end;
     int i, N, numProcessors, myId;
 
     MPI_Init(&argc, &argv);
@@ -31,42 +46,29 @@ int main(int argc, char *argv[])
         GET_TIME(begin);
     }
 
+    /* Manda para todos qual o tamanho do N */
     MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     while (N > 0) {
-        w = 1.0 / (double) N;
-        sum = 0.0;
+        /* Assim, cada processo calcula um pedaço das somas */
+        var= 1.0 / (double) N;
+        sumIntegral = 0.0;
         for (i = myId + 1; i <= N; i += numProcessors)
-            sum = sum + f(((double)i - 0.5) * w);
+            sumIntegral = sumIntegral + f(((double)i - 0.5) * w);
 
-        sum = sum * w;
+        sumIntegral = sumIntegral * var;
 
         MPI_Reduce(&sum, &pi, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (myId == 0) {
             GET_TIME(end);
             printf("Tempo de execução da parte paralela: %.10f\n\n", end - begin);
-            coleta (pi);
-            N = solicita ();
+            print (pi);
+            N = getN ();
         }
         MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
     }
     MPI_Finalize();
 
     return (0);
-}
-
-int solicita (void)
-{
-    int N;
-    printf ("Entre o número de intervalos para a aproximação:(0 para terminar)\n");
-    scanf("%d",&N);
-    return (N);
-}
-
-void coleta(double sum)
-{
-    double err;
-    err = sum - PI;
-    printf("soma, erro = %7.5f, %10e\n", sum, err);
 }

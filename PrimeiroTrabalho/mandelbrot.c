@@ -44,13 +44,17 @@ int main (int argc, char *argv[])
 	Pixmap		bitmap;
 	XPoint		points[800];
 	FILE
-		*fp, *fopen ();
+		*fp, *fopen (),
+		*results;
 
 
 	XSetWindowAttributes attr[1];
 
    /* Mandlebrot variables */
-    int i, j, k;
+    int
+		i, j, k,
+		l, isCalcs, jsCalcs, *isToPrint, *jsToPrint,
+		counter1, counter2;
     Compl	z, c;
     float	lengthsq, temp;
 
@@ -59,9 +63,12 @@ int main (int argc, char *argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &numProcessors);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myId);
 
+	isToPrint = (int *) malloc(sizeof(int) * numProcessors);
+	jsToPrint = (int *) malloc(sizeof(int) * numProcessors);
 
 	if (myId == 0)
-	{	/* connect to Xserver */
+	{
+		/* connect to Xserver */
 
 		if (  (display = XOpenDisplay (display_name)) == NULL ) {
 		   	fprintf (stderr, "drawon: cannot connect to X server %s\n",
@@ -119,16 +126,23 @@ int main (int argc, char *argv[])
 
 		XMapWindow (display, win);
 		XSync(display, 0);
+		results = fopen("results.txt", "w+");
 	}
 
+	/*
+	Força os processos esperarem o processo 0 criar a janela corretamente
+	Não é exatamente necessário, mas em situações específicas, ocorria um problema de impressão dos pontos
+	*/
+
+	MPI_Barrier(MPI_COMM_WORLD);
         /* Calculate and draw points */
 
-	printf("MyId: %d - Display: %p - Window: %p\n", myId, display, &win);
-
-	if (myId == 0) {
-
-	}
-    for (i = myId * (X_RESN / numProcessors); i < (myId + 1) * (X_RESN / numProcessors); i ++)
+	counter1 = 0; counter2 = 0;
+	/*
+	Quebra pra cada processo de maneira por balanceamento normal, sem intercalação
+	Pode gerar problemas se X_RESN/numProcessors não for inteiro
+	*/
+    for (i = myId * (X_RESN / numProcessors); i < (myId + 1) * (X_RESN / numProcessors); i++)
 	{
     	for (j = 0; j < Y_RESN; j++) {
 
@@ -136,7 +150,6 @@ int main (int argc, char *argv[])
           	c.real = ((float) j - 400.0)/200.0;               /* scale factors for 800 x 800 window */
 	  		c.imag = ((float) i - 400.0)/200.0;
           	k = 0;
-
           	do  {                                             /* iterate for pixel color */
 	            temp = z.real*z.real - z.imag*z.imag + c.real;
 	            z.imag = 2.0*z.real*z.imag + c.imag;
@@ -144,18 +157,36 @@ int main (int argc, char *argv[])
 	            lengthsq = z.real*z.real+z.imag*z.imag;
 	            k++;
           	} while (lengthsq < 4.0 && k < 100);
-
-	        if (k == 100) 
+			/* Garante que existe um valor para isCalcs e jsCalcs */
+			isCalcs = -1;
+			jsCalcs = -1;
+	        if (k == 100)
 			{
-				MPI_Bcast(&i, 1, MPI_INT, myId, MPI_COMM_WORLD);
-				MPI_Bcast(&j, 1, MPI_INT, myId, MPI_COMM_WORLD);
-				//XDrawPoint (display, win, gc, j, i);
+				/* Se o ponto entrou na condição, altera o isCalcs e jsCalcs */
+				counter1++;
+				isCalcs = i;
+				jsCalcs = j;
+			}
+			/* Envia de volta para o process 0 (responsável pela impressão) os pontos da iteração */
+			MPI_Gather(&isCalcs, 1, MPI_INT, isToPrint, 1, MPI_INT, 0, MPI_COMM_WORLD);
+			MPI_Gather(&jsCalcs, 1, MPI_INT, jsToPrint, 1, MPI_INT, 0, MPI_COMM_WORLD);
+			if (myId == 0)
+			{
+				counter2++;
+				for (l = 0; l < numProcessors; l++) {
+					/* Se os pontos forem ambos != -1, imprime na tela */
+					if (*(jsToPrint + l) != -1 && *(isToPrint + l) != -1)
+						XDrawPoint (display, win, gc, *(jsToPrint + l), *(isToPrint + l));
+				}
 			}
         }
 	}
 
-	XFlush (display);
-	sleep (30);
+	if (myId == 0) {
+		XFlush (display);
+		fclose(results);
+	}
+	sleep (10);
 
 	MPI_Finalize();
 	/* Program Finished */

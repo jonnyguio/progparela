@@ -1,0 +1,34 @@
+A questão 2 envolve a ordenação de um vetor com n numeros distintos.
+
+O interessante da questão 2 é que não faz diferença se os números estão ordenados ou não. O tempo é fixo em O(nˆ2).
+
+A parelização se dá pela quebra do vetor de n números em vetores menores de dimensão n / processadores. Utilizar de método intercalado nessa situação não faz muito sentido, apesar de ainda ser possível. Considerando os números ainda fixos, o balanceamento de carga não vem a ser um problema.
+
+O fluxo do programa funciona da seguinte maneira:
+
+    - Todos os processos alocam vetores de recebimento da entrada e de envio de ordem (aRecebe e bEnvai)
+    - O processo de rank 0 alocam os vetores de envio da entrada e do recebimento da ordem (aEnvia, bRecebe). Ele lida também com a inicialização do vetor aEnvia.
+    - Cada processo calcula então quantos números são menores dentro do vetor recebido. Nota-se então que a ordenação é parcelada, cada processo ordena um vetor menor.
+    - Todos os processos retornam de volta para o processo 0 (bRecebe).
+    - Cria a ordem correta desses vetores. A questão é que os vetores não vem ordenados entre si, apenas os vetores que estão ordenados. O bRecebe não é alterado, apenas calcula-se qual o jeito correto de imprimir (correctOrder).
+    - Finalmente, imprime o número num arquivo resultado, para não encher o terminal.
+
+A diferença do tempo foi significativa, e principalmente para valores mais altos. Foi esperado, devido a complexidade do algoritmo. Para valores pequenos, 16 processadores já causava um atraso maior, devido ao custo de criar vários processos e fazer a comunicação entre eles.
+
+1.000
+    1 processador: 0.0026111603s
+    4 processadores: 0.0002729893s
+    8 processadores: 0.0001769066s
+    16 processadores: 0.0046699047s
+
+10.000
+    1 processador: 0.2593131065s
+    4 processadores: 0.0166997910s
+    8 processadores: 0.0082020760s
+    16 processadores: 0.0044908524s
+
+100.000
+    1 processador: 25.7805290222s
+    4 processadores: 1.5133850574s
+    8 processadores: 0.6823720932s
+    16 processadores: 0.3975210190s

@@ -1,0 +1,10 @@
+A questão 3 falava sobre o exemplo de Mandlebrot, criando uma figura a partir de fractais.
+
+Um dos grandes problemas desse programa em especial é a dependência do X11, a biblioteca gráfica utilizada.
+Não existia equivalentes de dados MPI para as variáveis de Display, Janela, etc. Então, a solução encontrada deveria passar os pontos para um mesmo processo, e não cada um imprimir os pontos separadamente.
+Isto sobrecarregou o processo, pois para cada ponto encontrado que deveria ser impresso, era necessário reunir todos os pontos encontrados novamente e imprimi-los na tela (além de tudo, ocorria a reimpressão de vários pontos, já que um processo X não pode checar alterações nas variáveis de Y).
+Ainda assim, o programa executa suficientemente rápido, e conseguimos ver claramente os pontos serem encontrados simultaneamente ao longo da execução.
+
+Utilizou-se a função MPI_Gather para reunir no processo principal os pontos de todos os processos, imprimindo assim os pontos na tela de acordo com o seu recebimento.
+
+Outra maneira de resolver era pelo uso de mensagens (SEND & RECV), porém não era a proposta do trabalho.

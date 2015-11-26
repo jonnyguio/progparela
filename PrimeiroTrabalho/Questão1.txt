@@ -17,7 +17,7 @@ Tempos:
         * 16 Processadores: 1.0878791809
 
 O tempo em que a tarefa é otimizado é sublinear, num comportamento esperado:
-Na medida em que dobra o número de processadores, o tempo é dividido ao meio (para 1, 2, 4, 8 e 16 processadores) para valores maiores (10^9), enquanto para valores menores (10^6) a eficiência já cai ao chegar em 16 processadores.
+Na medida em que dobra o número de processadores, o tempo é dividido ao meio (para 1, 2, 4, 8 e 16 processadores) para valores maiores (10^9), enquanto para valores menores (10^6) a eficiência já cai ao chegar em 16 processadores (o custo de criar processos e depois reunir informações é maior que o custo computacional).
 
 Assim, os speedups para 10^6 ficam:
     1.968227367, 3.83565232897, 5.80442179101, 2.09619207812 (2, 4, 8 e 16 processadores respectivamente)
@@ -25,5 +25,5 @@ Assim, os speedups para 10^6 ficam:
 Para 10^9:
     1.99791379628, 3.91983141825, 7.9528223971, 15.8674449298 (2, 4, 8 e 16 processadores respectivamente)
 
-A rotina "reduce" facilita nas contas, onde pega os resultados independentes e junta no resultado realmente esperado.
+A rotina "MPI_Reduce" facilita nas contas, onde pega os resultados independentes e junta no resultado realmente esperado.
 A paralelização desse problema não é complicada, utilizando o método intercalado de separação de dados facilmente paraleliza-se esse processo.
