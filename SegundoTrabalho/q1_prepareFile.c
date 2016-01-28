@@ -12,10 +12,9 @@ int main(int argc, char const *argv[]) {
 
     f = fopen("q1.in", "w+");
     fprintf(f, "%d\n", n);
-    srand(TIME(NULL));
     for (i = 0; i < n; i++) {
-        x = rand() * 100;
-        y = rand() * 50;
+        x = i;
+        y = i * 10 + 10;
         fprintf(f, "%lf %lf\n", x, y);
     }
     fclose(f);
