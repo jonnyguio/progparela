@@ -133,8 +133,8 @@ int main (int argc, char *argv[])
 	Força os processos esperarem o processo 0 criar a janela corretamente
 	Não é exatamente necessário, mas em situações específicas, ocorria um problema de impressão dos pontos
 	*/
-
 	MPI_Barrier(MPI_COMM_WORLD);
+
         /* Calculate and draw points */
 
 	counter1 = 0; counter2 = 0;
@@ -166,6 +166,8 @@ int main (int argc, char *argv[])
 				counter1++;
 				isCalcs = i;
 				jsCalcs = j;
+
+				//XDrawPoint (display, win, gc, jsCalcs, isCalcs);
 			}
 			/* Envia de volta para o process 0 (responsável pela impressão) os pontos da iteração */
 			MPI_Gather(&isCalcs, 1, MPI_INT, isToPrint, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -174,7 +176,7 @@ int main (int argc, char *argv[])
 			{
 				counter2++;
 				for (l = 0; l < numProcessors; l++) {
-					/* Se os pontos forem ambos != -1, imprime na tela */
+
 					if (*(jsToPrint + l) != -1 && *(isToPrint + l) != -1)
 						XDrawPoint (display, win, gc, *(jsToPrint + l), *(isToPrint + l));
 				}
