@@ -1,0 +1,48 @@
+- PARA TESTAR, mude o "100000.in" ou o "1000000.in" para "1.in", que é o arquivo usado no MPI_FILE_OPEN dentro dos programas.
+
+PONTEIRO INDIVIDUAIS
+
+    Tempo estimado com 4 processadores com 100000 (cem mil) - 5 testes:
+
+        0.036741s
+        0.009673s
+        0.014511s
+        0.007081s
+        0.038488s
+
+    O tempo médio foi: 0.0212988s
+
+    Tempo estimado com 4 processadores com 1000000 (um milhão)- 4 testes:
+
+        0.132960s
+        0.122093s
+        0.110532s
+        0.137866s
+
+    O tempo médio foi: 0.12586275s
+
+PONTEIRO COMPARTILHADO
+
+    Tempo estimado com 4 processadores com 100000 (cem mil) - 5 testes:
+
+        0.000857s
+        0.000815s
+        0.001913s
+        0.000843s
+        0.001479s
+
+    O tempo médio foi: 0.0011814s
+
+    Tempo estimado com 4 processadores com 1000000 (um milhão) - 4 testes:
+
+        0.222451s
+        0.026859s
+        0.025981s
+        0.028874s
+
+    O tempo médio foi: 0.07604125s
+
+
+Podemos concluir que o uso de ponteiros compartilhados melhorou o desempenho. Por exemplo, com 1 milhão, o tempo médio foi de 0.12586275 para 0.07604125, uma melhora de quase 50%.
+
+Enquanto o processamento ainda é rápido (menos de 1 segundo), em situações onde pode-se levar grandes tempos (horas, talvez dias), em dados ordenados mostrou-se interessante o uso de ponteiros compartilhados.
